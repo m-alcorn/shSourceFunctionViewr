@@ -1,0 +1,681 @@
+Name,Type,FullName,Value
+$f_cum_rain_21days,Function,$ACT_AnnualTake.Urban_demands.f_cum_rain_21days,"Lookup($mv_Airport_rain_last_21_days,20)*(0.25+1.2*EXP(-0.2*0))
++ Lookup($mv_Airport_rain_last_21_days,19)*(0.25+1.2*EXP(-0.2*1))
++ Lookup($mv_Airport_rain_last_21_days,18)*(0.25+1.2*EXP(-0.2*2))
++ Lookup($mv_Airport_rain_last_21_days,17)*(0.25+1.2*EXP(-0.2*3))
++ Lookup($mv_Airport_rain_last_21_days,16)*(0.25+1.2*EXP(-0.2*4))
++ Lookup($mv_Airport_rain_last_21_days,15)*(0.25+1.2*EXP(-0.2*5))
++ Lookup($mv_Airport_rain_last_21_days,14)*(0.25+1.2*EXP(-0.2*6))
++ Lookup($mv_Airport_rain_last_21_days,13)*(0.25+1.2*EXP(-0.2*7))
++ Lookup($mv_Airport_rain_last_21_days,12)*(0.25+1.2*EXP(-0.2*8))
++ Lookup($mv_Airport_rain_last_21_days,11)*(0.25+1.2*EXP(-0.2*9))
++ Lookup($mv_Airport_rain_last_21_days,10)*(0.25+1.2*EXP(-0.2*10))
++ Lookup($mv_Airport_rain_last_21_days,9)*(0.25+1.2*EXP(-0.2*11))
++ Lookup($mv_Airport_rain_last_21_days,8)*(0.25+1.2*EXP(-0.2*12))
++ Lookup($mv_Airport_rain_last_21_days,7)*(0.25+1.2*EXP(-0.2*13))
++ Lookup($mv_Airport_rain_last_21_days,6)*(0.25+1.2*EXP(-0.2*14))
++ Lookup($mv_Airport_rain_last_21_days,5)*(0.25+1.2*EXP(-0.2*15))
++ Lookup($mv_Airport_rain_last_21_days,4)*(0.25+1.2*EXP(-0.2*16))
++ Lookup($mv_Airport_rain_last_21_days,3)*(0.25+1.2*EXP(-0.2*17))
++ Lookup($mv_Airport_rain_last_21_days,2)*(0.25+1.2*EXP(-0.2*18))
++ Lookup($mv_Airport_rain_last_21_days,1)*(0.25+1.2*EXP(-0.2*19))
++ Lookup($mv_Airport_rain_last_21_days,0)*(0.25+1.2*EXP(-0.2*20))
+/* from Icon Water, 2018, p7 */"
+$f_cum_max_temp_7_days,Function,$ACT_AnnualTake.Urban_demands.f_cum_max_temp_7_days,"Lookup($mv_last_7_days_max_temp,6)*(1+4*EXP(0))
++ Lookup($mv_last_7_days_max_temp,5)*(1+4*EXP(-1.1))
++ Lookup($mv_last_7_days_max_temp,4)*(1+4*EXP(-1.1*2)) 
++ Lookup($mv_last_7_days_max_temp,3)*(1+4*EXP(-1.1*3))
++ Lookup($mv_last_7_days_max_temp,2)*(1+4*EXP(-1.1*4))
++ Lookup($mv_last_7_days_max_temp,1)*(1+4*EXP(-1.1*5))
++ Lookup($mv_last_7_days_max_temp,0)*(1+4*EXP(-1.1*6))
+
+/* from Icon Water, 2018, p7 */"
+$f_Urban_demand,Function,$ACT_AnnualTake.Urban_demands.f_Urban_demand,"/*457860 is population at 31 Dec 2017.  This will change for SDL sceanrio*/
+max(0,$ACT_AnnualTake.Return_flows.f_scenario_population *
+(
+1.33E-06 * $f_cum_evap*0.9628 * $pv_seasonality +
+-2.36E-05 * SQRT($f_cum_rain_21days*0.9677) * $pv_seasonality +
+6.75E-07 * $f_cum_max_temp_7_days*1.04901
+)
++ 55)
+
+/* from Icon Water 2018, p7,8) */
+
+// rain multiplied by 0.9677 to match that used originally in the ewater report 1891-2016 //
+//temp multiplied by 1.04901 to match that used originally in the ewater report 1891-2016 //
+// evap multiplied by 0.9628 to match that used originally in the ewater report 1891-2016 //
+
+// this is the unrestricted Urban demand //"
+$f_cum_evap,Function,$ACT_AnnualTake.Urban_demands.f_cum_evap,"Lookup($mv_last_7_days_evap,6)*(1+4*EXP(0))
++ Lookup($mv_last_7_days_evap,5)*(1+4*EXP(-1.1))
++ Lookup($mv_last_7_days_evap,4)*(1+4*EXP(-1.1*2)) 
++ Lookup($mv_last_7_days_evap,3)*(1+4*EXP(-1.1*3))
++ Lookup($mv_last_7_days_evap,2)*(1+4*EXP(-1.1*4))
++ Lookup($mv_last_7_days_evap,1)*(1+4*EXP(-1.1*5))
++ Lookup($mv_last_7_days_evap,0)*(1+4*EXP(-1.1*6))
+
+/* from Icon Water, 2018, p7 */"
+$f_scenario_population,Function,$ACT_AnnualTake.Return_flows.f_scenario_population,"/* defines popluation for current scenario - //
+// used to scale both demand and baseflow component of returns*/
+// ""current population = 457860"" //
+
+// Supply population 2021 is about 500,000 //
+// SDL scenario might be 800,000 //
+500000"
+$f_population_factor,Function,$ACT_AnnualTake.Return_flows.f_population_factor,"/*see section 6.5 0- Baseflow calculation. Alluvium 2017 -Model development report*/
+/*minumum annual water use divided by 2016 minimum water use*/
+/*miniumum annual water use scaled by population, assumes no impact of restrictions as ACT policy is that this does not occur in future*/
+/*factor based on figure 5 in Icon Water Potable demand model report*/
+/* Figure 5:  Water use = 0.065*population + 20179 */
+(0.065*$f_scenario_population+20179)/(0.065*$f_current_population+20179)"
+$f_current_population,Function,$ACT_AnnualTake.Return_flows.f_current_population,"/*current population as at 31 Dec 2017 */
+457860"
+$f_LMWQCC_quick_return_flow,Function,$ACT_AnnualTake.Return_flows.f_LMWQCC_quick_return_flow,"
+
+$f_population_factor*$ts_LMWQCC_baseline_outflow"
+$f_BF_Scaling_factor,Function,$ACT_AnnualTake.Return_flows.f_BF_Scaling_factor,"/*see section 6.5 0- Baseflow calculation. Alluvium 2017 -Model development report*/
+/*minumum annual water use divided by 2016 minimum water use*/
+/*miniumum annual water use scaled by population, assumes no impact of restrictions as ACT policy is that this does not occur in future*/
+/*factor based on figure 5 in Icon Water Potable demand model report*/
+/* Figure 5:  Water use = 0.065*population + 20179 */
+
+// Baseflow then scaled to account for water restrictions to negate comment 3 above //
+
+(0.065*$f_scenario_population+20179)/(0.065*$f_current_population+20179) * $ACT_Demand.Water_Restriction_Triggers.f_Water_restriction_scaling_factor_baseflows"
+$f_daily_base_flow,Function,$ACT_AnnualTake.Return_flows.f_daily_base_flow,$pv_DailyBF*$f_BF_Scaling_factor
+$f_QSTP_return_flow,Function,$ACT_AnnualTake.Return_flows.f_QSTP_return_flow,0.1*($f_daily_base_flow+$f_LMWQCC_quick_return_flow)
+$f_other_licence_demend,Function,$ACT_AnnualTake.Other_demands.f_other_licence_demend,4690*$ACT_AnnualTake.Urban_demands.pv_seasonality/182.625
+$f_runtime,Function,$ACT_AnnualTake.Results.f_runtime,$f_runtime + 1
+$f_Total_return,Function,$ACT_AnnualTake.Results.f_Total_return,1.1*$ACT_AnnualTake.Return_flows.f_LMWQCC_total_return_flow
+$f_Urban_take,Function,$ACT_AnnualTake.Results.f_Urban_take,$mv_Gross_urban_take
+$f_Net_take,Function,$ACT_AnnualTake.Results.f_Net_take,$mv_Gross_other_take + $mv_Gross_urban_take - $f_Total_return
+$f_Cumulative_net_take,Function,$ACT_AnnualTake.Results.f_Cumulative_net_take,$f_Cumulative_net_take +$f_Net_take
+$f_Average_annual_net_take,Function,$ACT_AnnualTake.Results.f_Average_annual_net_take,"if($f_runtime>364,
+	if($Now.Day = $End.Day AND $Now.Month = $End.Month AND $Now.Year = $End.Year, 
+		$f_Cumulative_net_take/int($f_runtime/365.25+0.5),0),0)"
+$f_Corin_PMF_release,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_PMF_release,"if($f_Corin_PMF_trigger_last2months<1,$pv_PMF_release*1,0)"
+$f_Corin_RMF_release,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_RMF_release,"if($f_Corin_RMF_trigger_last2months<3,$pv_RMF_release*1,0)"
+$f_Corin_RMF_trigger_3day,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_RMF_trigger_3day,sum($mv_Corin_RMF_3day_flow_trigger)
+$f_Corin_RMF_trigger_last2months,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_RMF_trigger_last2months,max($mv_Corin_RMF_last_2_months)
+$f_Corin_baseflow_release,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_baseflow_release,"if($f_Corin_baseflow_threshold<$f_Corin_reference_inflow, $f_Corin_baseflow_threshold, $f_Corin_reference_inflow)"
+$f_Corin_baseflow_threshold,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_baseflow_threshold,$pv_Corin_ACT_Env_Release*1
+$f_Corin_total_env_release,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_total_env_release,"if($f_Corin_PMF_release<550,
+	if($f_Corin_RMF_release<150,$f_Corin_baseflow_release,$f_Corin_RMF_release),
+		$f_Corin_PMF_release)"
+$f_PMF_threshold,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_PMF_threshold,"if($mv_DS_Corin>549,1,0)"
+$f_Corin_RMF_threshold,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_RMF_threshold,"if($mv_DS_Corin>149,1,0)"
+$f_Corin_PMF_trigger_last2months,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_PMF_trigger_last2months,max($mv_Corin_PMF_last_2_months)
+$f_Corin_asv,Function,$ICON_storages.Corin.f_Corin_asv,"max(0,$mv_Corin_csv-$mv_Corin_dsv)"
+$f_Corin_env_release,Function,$ICON_storages.Corin.f_Corin_env_release,"//no longer used. retained here from NSW RWS model
+if($f_Corin_flush_flow>0,$f_Corin_flush_flow,
+	if($mv_Corin_inflow<$f_Corin_env_thresholds,$mv_Corin_inflow,$f_Corin_env_thresholds)) "
+$f_Corin_flush_flow,Function,$ICON_storages.Corin.f_Corin_flush_flow,$pv_Corin_flush_pattern*1
+$f_Corin_env_thresholds,Function,$ICON_storages.Corin.f_Corin_env_thresholds,$pv_Corin_env_release_thresholds*1
+$f_Corin_env_release_and_transfer,Function,$ICON_storages.Corin.f_Corin_env_release_and_transfer,"//$Corin_env_release + $Supplypriority.Corin_total_demand
+
+
+
+$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_total_env_release + $ICON_supply.Supply_Priority_2024.f_Corin_total_demand  //"
+$f_Bendora_residual_inflow,Function,$ICON_storages.Bendora.f_Bendora_residual_inflow,$mv_Bendora_resin1+$mv_Bendora_resin3+$mv_Bendora_resin2
+$f_Bendora_and_Corin_inflow,Function,$ICON_storages.Bendora.f_Bendora_and_Corin_inflow,$ICON_storages.Corin.mv_Corin_inflow + $f_Bendora_residual_inflow
+$f_Bendora_asv,Function,$ICON_storages.Bendora.f_Bendora_asv,"max(0,$mv_Bendora_csv -$mv_Bendora_dsv)"
+$f_Bendora_env_thresholds,Function,$ICON_storages.Bendora.f_Bendora_env_thresholds,$pv_Bendora_env_release_thresholds*1
+$f_Bendora_flush_flow,Function,$ICON_storages.Bendora.f_Bendora_flush_flow,$pv_Bendora_flush_pattern*1
+$f_Bendora_topup,Function,$ICON_storages.Bendora.f_Bendora_topup,"if($mv_Bendora_csv<9169,9169-$mv_Bendora_csv,0)"
+$f_Bendora_env_release,Function,$ICON_storages.Bendora.f_Bendora_env_release,"// if($f_Bendora_flush_flow>0,$f_Bendora_flush_flow, if($F_Bendora_and_corin_inflow<$f_Bendora_env_thresholds,$f_Bendora_and_corin_inflow,$f_Bendora_env_thresholds)) //
+
+// old function from NSW RWS model //
+// new function based on ACT env flow goidelines //
+
+$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_total_env_release"
+$f_Cotter_flush_flow,Function,$ICON_storages.Cotter.f_Cotter_flush_flow,$pv_Cotter_flush_pattern*1
+$f_Cotter_asv,Function,$ICON_storages.Cotter.f_Cotter_asv,"max(0,$mv_Cotter_csv-$mv_Cotter_dsv)"
+$f_Googong_transfer,Function,$ICON_storages.Googong.f_Googong_transfer,"if($ICON_supply.Storage_Assess.f_storage_prop < 0.62,max($mv_Googong_fsv*0.8 - $mv_Googong_csv, 0), 0)"
+$f_Googong_env_flow,Function,$ICON_storages.Googong.f_Googong_env_flow,"if($f_Googong_flushflow>0,$f_Googong_flushflow,$f_Googong_baseflow)"
+$f_Googong_asv,Function,$ICON_storages.Googong.f_Googong_asv,"max(0,$mv_Googong_csv-$mv_Googong_dsv)"
+$f_Googong_flushflow,Function,$ICON_storages.Googong.f_Googong_flushflow,$pv_Googong_fush_pattern*1
+$f_Googong_baseflow,Function,$ICON_storages.Googong.f_Googong_baseflow,10
+$f_Googong_Murrumbidgee_demand,Function,$ICON_supply.Murrumbidgee.f_Googong_Murrumbidgee_demand,"/* Transfers from Murrumbidgee River to Googong Reservoir commence when total storage is below 62%. Transfer continues until Googong storage reaches 80% full. 
+     Transfer is subject to flow in Murrumbidgee River at Angle Crossing. Capacity is 100 ML/day (3000 ML/month). */
+min($mv_Murrumbidgee_us_angle,
+	if($ICON_Supply.Storage_Assess.f_storage_prop<0.62,100,
+			if($ICON_Supply.Storage_Assess.f_storage_prop>=0.8,0,$f_Googong_Murrumbidgee_demand)))"
+$f_M_G_extraction_flag,Function,$ICON_supply.Murrumbidgee.f_M_G_extraction_flag,"if($ICON_Supply.Storage_Assess.f_Googong_prop<0.8,1,0)"
+$f_M_G_extraction_limit,Function,$ICON_supply.Murrumbidgee.f_M_G_extraction_limit,"if($f_M_G_extraction_flag=1,
+  if($mv_Murrumbidgee_us_angle - $pv_Murrumbidgee_angle_protected_flow >= 100,100, 
+     if($mv_Murrumbidgee_us_angle - $pv_Murrumbidgee_angle_protected_flow >= 90,90,
+         if($mv_Murrumbidgee_us_angle - $pv_Murrumbidgee_angle_protected_flow >= 60,60,
+            if($mv_Murrumbidgee_us_angle - $pv_Murrumbidgee_angle_protected_flow >= 45,45,
+               if($mv_Murrumbidgee_us_angle - $pv_Murrumbidgee_angle_protected_flow >= 20,20,0
+               )
+            )
+         )
+      )
+    )
+,0) "
+$f_below_Cotter_max_take,Function,$ICON_supply.Murrumbidgee.f_below_Cotter_max_take,"if($mv_Murrumbidgee_below_Cotter*1>$pv_Murrumbidgee_cotter_protected_flow,
+	$mv_Murrumbidgee_below_Cotter*1-$pv_Murrumbidgee_cotter_protected_flow,0)
+"
+$f_Angle_max_take,Function,$ICON_supply.Murrumbidgee.f_Angle_max_take,"if($mv_Murrumbidgee_us_angle*1>$pv_Murrumbidgee_angle_protected_flow,
+	$mv_Murrumbidgee_us_angle*1-$pv_Murrumbidgee_angle_protected_flow,0)"
+$f_System_csv,Function,$ICON_supply.Storage_Assess.f_System_csv,"$ICON_storages.Cotter.mv_Cotter_csv+
+$ICON_storages.Corin.mv_Corin_csv+
+$ICON_storages.Googong.mv_Googong_csv+
+$ICON_storages.Bendora.mv_Bendora_csv"
+$f_Storage_prop,Function,$ICON_supply.Storage_Assess.f_Storage_prop,$f_System_csv/$f_System_fsv
+$f_System_fsv,Function,$ICON_supply.Storage_Assess.f_System_fsv,"$ICON_storages.Cotter.mv_Cotter_fsv+
+$ICON_storages.Corin.mv_Corin_fsv+
+$ICON_storages.Bendora.mv_Bendora_fsv+
+$ICON_storages.Googong.mv_Googong_fsv"
+$f_Balance_shortfall,Function,$ICON_supply.Supply_Priority.f_Balance_shortfall,"/* Shortfall in ACT demand after Bendora above 9169, Murrumbidgee, Cotter and Googong and Corin balancing demands */
+max(0,$f_Cotter_shortfall-$f_Total_balance_demand)"
+$f_Bendora_87_capacity,Function,$ICON_supply.Supply_Priority.f_Bendora_87_capacity,"max(0,$f_Bendora_remaining_cap-$f_Corin_87_demand)"
+$f_Bendora_87_demand,Function,$ICON_supply.Supply_Priority.f_Bendora_87_demand,"/* When above 87% the demand is directed to Bendora and Corin with any shortfall directed to Googong 
+    Water is taken from Corin first and when this reaches empty the remainder is taken from Bendora */
+min($f_87_shortfall,min(max(0,$ICON_storages.Bendora.f_Bendora_asv-$ICON_storages.Bendora.f_Bendora_env_release-$f_Bendora_above_9169),$f_Bendora_87_capacity))"
+$f_Bendora_above_9169,Function,$ICON_supply.Supply_Priority.f_Bendora_above_9169,"/* Volume in Bendora above 9169 has the highest prioirty of use but is limited by Bendora outlet capacity and the ACT demand */
+min($ACT_Demand.f_Demand_tot,
+	min($f_Bendora_cap,
+		max(0,$ICON_storages.Bendora.mv_Bendora_csv-$ICON_storages.Bendora.f_Bendora_env_release-9169)))"
+$f_Bendora_balance_cap,Function,$ICON_supply.Supply_Priority.f_Bendora_balance_cap,"max(0,$f_Bendora_cap-$f_Bendora_above_9169-$f_Murrumbidgee_cotter_demand-$f_Cotter_demand)"
+$f_Bendora_demand,Function,$ICON_supply.Supply_Priority.f_Bendora_demand,$f_Bendora_above_9169+$f_Bendora_87_demand
+$f_Bendora_extra_cap,Function,$ICON_supply.Supply_Priority.f_Bendora_extra_cap,"max(0,$f_Bendora_balance_cap-$f_Corin_balance_demand)"
+$f_Bendora_remaining_cap,Function,$ICON_supply.Supply_Priority.f_Bendora_remaining_cap,"max(0,$f_Bendora_extra_cap-$f_Corin_extra_demand)"
+$f_Bendora_shortfall,Function,$ICON_supply.Supply_Priority.f_Bendora_shortfall,"/* The part of the ACT demand that is not met by water in Bendoara above 9169 */
+max(0,$ACT_Demand.f_Demand_tot-$f_Bendora_above_9169)"
+$f_Bendora_cap,Function,$ICON_supply.Supply_Priority.f_Bendora_cap,250.5 /* Converted to ML/day by dividing 7015 by 28 days in February */
+$f_Bendora_total_demand,Function,$ICON_supply.Supply_Priority.f_Bendora_total_demand,$f_Bendora_demand+$f_Corin_total_demand
+$f_Corin_87_demand,Function,$ICON_supply.Supply_Priority.f_Corin_87_demand,"/* When above 87% the demand is directed to Bendora and Corin with any shortfall directed to Googong 
+    Water is taken from Corin first and then Bendora */
+min($f_Extra_shortfall,min(max(0,$ICON_storages.Corin.f_Corin_asv-$f_Corin_balance_demand-$f_Corin_extra_demand),$f_Bendora_remaining_cap))"
+$f_Corin_Googong_FSV,Function,$ICON_supply.Supply_Priority.f_Corin_Googong_FSV,$ICON_storages.Corin.mv_Corin_fsv+$ICON_storages.Googong.mv_Googong_fsv
+$f_Corin_Googong_CSV,Function,$ICON_supply.Supply_Priority.f_Corin_Googong_CSV,$ICON_storages.Corin.mv_Corin_csv+$ICON_storages.Googong.mv_Googong_csv
+$f_Corin_balance,Function,$ICON_supply.Supply_Priority.f_Corin_balance,"min(max(0,$f_Bendora_cap-$f_Bendora_above_9169),min($ICON_storages.Corin.f_Corin_asv,
+	max(0,$ICON_storages.Corin.mv_Corin_csv-$ICON_storages.Corin.mv_Corin_fsv*$f_Corin_Googong_CSV/$f_Corin_Googong_FSV)))"
+$f_Corin_balance_demand,Function,$ICON_supply.Supply_Priority.f_Corin_balance_demand,"/* If total storage <= 87% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+    First take the amount to balance the storage proportions
+    Take subject to Corin active volume, Bendora remaining capacity and the proportion that Corin contrinbutes to the remaining ACT demand */
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.87, min($f_Bendora_balance_cap,
+              min($ICON_storages.Corin.f_Corin_asv,
+                          if($f_Total_balance>0,$f_Cotter_shortfall*$f_Corin_balance/$f_Total_balance,0))),0) 
+                                                                        "
+$f_Corin_extra_demand,Function,$ICON_supply.Supply_Priority.f_Corin_extra_demand,"/* If total storage <= 87% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+   If there was not enough after balancing storages then take water to ensure storages are in balance
+   Take subject to Bendora remaining capacity, Corin remaining active volume and the proportion that Corin contrinbutes to the remaining ACT demand */
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.87, min($f_Bendora_extra_cap,
+     min(max(0,$ICON_storages.Corin.f_Corin_asv-$f_Corin_balance_demand),$f_Balance_shortfall*$ICON_storages.Corin.mv_Corin_fsv/$f_Corin_Googong_FSV)),0)"
+$f_Corin_total_demand,Function,$ICON_supply.Supply_Priority.f_Corin_total_demand,$f_Corin_balance_demand+$f_Corin_extra_demand+$f_Corin_87_demand
+$f_Cotter_cap,Function,$ICON_supply.Supply_Priority.f_Cotter_cap,"max(0,$f_Stromlo_cap-$f_Murrumbidgee_cotter_demand)"
+$f_Cotter_demand,Function,$ICON_supply.Supply_Priority.f_Cotter_demand,"/* If the total storage is < 75% take from Cotter after Murrumbidgee has been considered else not
+    Take subject to Cotter active volume, remaining Stromolo Capacity and the remaining ACT demand */
+if($ICON_supply.Storage_Assess.f_storage_prop<0.75,
+	min($f_Murrumbidgee_shortfall,min($f_Cotter_cap,$ICON_storages.Cotter.f_Cotter_asv)),0)
+"
+$f_Cotter_shortfall,Function,$ICON_supply.Supply_Priority.f_Cotter_shortfall,"/* Shortfall in ACT demand after Bendora above 9169, Murrumbidgee and Cotter demands */
+max(0,$f_Murrumbidgee_shortfall-$f_Cotter_demand)"
+$f_Extra_shortfall,Function,$ICON_supply.Supply_Priority.f_Extra_shortfall,"/* Shortfall in ACT demand after Bendora above 9169, Murrumbidgee, Cotter and Googong and Corin total demands */
+max(0.0,$f_Balance_shortfall-$f_Total_extra)"
+$f_Googong_balance,Function,$ICON_supply.Supply_Priority.f_Googong_balance,"min($f_Googong_cap,min($ICON_storages.Googong.f_Googong_asv,
+	max(0,$ICON_storages.Googong.mv_Googong_csv-$ICON_storages.Googong.mv_Googong_fsv*$f_Corin_Googong_CSV/$f_Corin_Googong_FSV)))"
+$f_Googong_balance_demand,Function,$ICON_supply.Supply_Priority.f_Googong_balance_demand,"/* If total storage <= 87% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+    First take the amount to balance the storage proportions
+    Take subject to Googong active volume, Googong Capacity and the proportion that Googong contrinbutes to the remaining ACT demand */
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.87, min($f_Googong_cap,
+	min($ICON_storages.Googong.f_Googong_asv,
+             if($f_Total_balance>0,$f_Cotter_shortfall*$f_Googong_balance/$f_Total_balance,0))),0) "
+$f_Googong_cap,Function,$ICON_supply.Supply_Priority.f_Googong_cap,274.8 /* Converted to ML/day by dividing 7695 by 28 days in February */
+$f_Googong_extra_cap,Function,$ICON_supply.Supply_Priority.f_Googong_extra_cap,"max(0,$f_Googong_cap-$f_Googong_balance_demand)"
+$f_Googong_final_demand,Function,$ICON_supply.Supply_Priority.f_Googong_final_demand,"min($f_Final_shortfall,min
+	(max(0,$ICON_storages.Googong.f_Googong_asv-$f_Googong_balance_demand-$f_Googong_extra_demand),
+		$f_Googong_remaining_cap))"
+$f_Googong_extra_demand,Function,$ICON_supply.Supply_Priority.f_Googong_extra_demand,"/* If total storage <= 87% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+    If there was not enough after balancing storages then take water to ensure storages are in balance
+    Take subject to remaining Googong remaining capacity, Googong active volume and the proportion that Googong contrinbutes to the remaining ACT demand */
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.87, min($f_Googong_extra_cap,
+        min(max(0,$ICON_storages.Googong.f_Googong_asv-$f_Googong_balance_demand),
+        	$f_Balance_shortfall*$ICON_storages.Googong.mv_Googong_fsv/$f_Corin_Googong_FSV)),0)
+"
+$f_Googong_remaining_cap,Function,$ICON_supply.Supply_Priority.f_Googong_remaining_cap,"max(0,$f_Googong_extra_cap-$f_Googong_extra_demand)"
+$f_Googong_total_demand,Function,$ICON_supply.Supply_Priority.f_Googong_total_demand,$f_Googong_balance_demand+$f_Googong_extra_demand+$f_Googong_final_demand
+$f_Murrumbidgee_cotter_demand,Function,$ICON_supply.Supply_Priority.f_Murrumbidgee_cotter_demand,"/* If the total storage is below 50% then try and take it from the Murrumbidgee River near Cotter else don;t take ti from the Murrumbidgee
+     The Murrumbidgee take is limited to the remaing ACT demand, Stromolo inlet capacity and the flow in the Murrumbidgee River */
+if($ICON_supply.Storage_Assess.f_storage_prop<0.5,
+	min($f_Bendora_shortfall,
+		min($f_Stromlo_cap,$ICON_supply.Murrumbidgee.mv_Murrumbidgee_below_Cotter)),0)"
+$f_Murrumbidgee_shortfall,Function,$ICON_supply.Supply_Priority.f_Murrumbidgee_shortfall,"/* Shortfall in act demand after Bendora above 9169 and MUrrumbidgee access is taken into account */
+max(0,$f_Bendora_shortfall-$f_Murrumbidgee_cotter_demand)"
+$f_Stromlo_cap,Function,$ICON_supply.Supply_Priority.f_Stromlo_cap,98 /* Converted to ML/day by dividing 2745 by 28 days in February */
+$f_Total_balance,Function,$ICON_supply.Supply_Priority.f_Total_balance,$f_Corin_balance+$f_Googong_balance
+$f_Total_balance_demand,Function,$ICON_supply.Supply_Priority.f_Total_balance_demand,"/* Sum of Corin and Googong balance demands */
+$f_Corin_balance_demand+$f_Googong_balance_demand"
+$f_Total_extra,Function,$ICON_supply.Supply_Priority.f_Total_extra,"/* Sum of Googong and Coring Extra demands */
+$f_Googong_extra_demand+$f_Corin_extra_demand"
+$f_87_shortfall,Function,$ICON_supply.Supply_Priority.f_87_shortfall,"/* Remaining shortfall after Corin has met the demand */
+max(0,$f_Extra_shortfall-$f_Corin_87_demand)"
+$f_Final_shortfall,Function,$ICON_supply.Supply_Priority.f_Final_shortfall,"max(0,$f_87_shortfall-$f_Bendora_87_demand)"
+$f_Demand_tot,Function,$ACT_Demand.f_Demand_tot,"// Switch to using restricted urban demand //
+//$ACT_AnnualTake.Urban_demands.f_Urban_demand //
+
+$ACT_Demand.Water_Restriction_Triggers.f_Restricted_urban_demand
+
+//$ACT_Demand.Water_Restrictions_2010.f_Restricted_urban_demand_2010
+"
+$f_Tantangara_HEW_estimate,Function,$Other_storages.Tantangara.f_Tantangara_HEW_estimate,"if($f_Tantangara_past_12_months_rain_total>1280,
+	35800, if($f_Tantangara_past_12_months_rain_total<1120,
+		$f_Tantangara_past_12_months_rain_total/1120*8200,
+			($f_Tantangara_past_12_months_rain_total - 1120)*167+8200))"
+$f_LMWQCC_total_return_flow,Function,$ACT_AnnualTake.Return_flows.f_LMWQCC_total_return_flow,$f_LMWQCC_quick_return_flow +$f_daily_base_flow
+$f_AnnualUsage,Function,$NSW_Towns_Urban_Demand.Yass.f_AnnualUsage,1209* ($f_ScenarioPopulation/$f_Population)
+$f_Tanangara_HEW_pattern_selection,Function,$Other_storages.Tantangara.f_Tanangara_HEW_pattern_selection,"if($Now.Month = 5 and $now.day = 1, 
+	if($f_Tantangara_HEW_estimate<21400,3,
+		if($f_Tantangara_HEW_estimate<35000,2,1)),$f_Tanangara_HEW_pattern_selection)"
+$f_Tantangara_modelled_release,Function,$Other_storages.Tantangara.f_Tantangara_modelled_release,"$f_Tantangara_annual_HEW/1000*
+	lookup($bv_Tantangara_release_patterns, $f_Tanangara_HEW_pattern_selection,$Now.DayOfYear)"
+$f_Tantangara_annual_HEW,Function,$Other_storages.Tantangara.f_Tantangara_annual_HEW,"if($Now.Month = 5 and $now.day = 1, 
+	$f_Tantangara_HEW_estimate, 
+		$f_Tantangara_annual_HEW)"
+$f_max_Eucumbene_release,Function,$Other_storages.Tantangara.f_max_Eucumbene_release,"// Adapted from NSW RWS model - Try to maintain 40GL but careful about Eucumbene
+
+max(($mv_Tantangara_volume + $mv_Tantangara_inflows - $mv_Tantangara_expected_env_release) - 55313.9, 0)
+"
+$f_DailyUsage,Function,$NSW_Towns_Urban_Demand.Yass.f_DailyUsage,"// $f_AnnualUsage disaggreated to daily via monthly pattern and days in month
+$f_AnnualUsage * ($pv_MonthlyUsage / 100) / $Now.DaysInMonth"
+$f_Population,Function,$NSW_Towns_Urban_Demand.Yass.f_Population,10492
+$f_VarUseDemand,Function,$NSW_Towns_Urban_Demand.Yass.f_VarUseDemand,"// Variable usage demand in ML/d based off rolling deficit
+($f_DailyUsage - $f_CHWNDemand) * ($f_RollingDeficit / 7) / $pv_MonthlyDeficit"
+$f_TotalDemand,Function,$NSW_Towns_Urban_Demand.Yass.f_TotalDemand,$f_VarUseDemand + $f_CHWNDemand
+$f_RollingDeficit,Function,$NSW_Towns_Urban_Demand.Yass.f_RollingDeficit,"$f_RollingDeficit + 
+max($tv_Evap - $tv_Rainfall, 0) -
+max(lookup($mv_Evap_7days, 0) - lookup($mv_Rainfall_7days, 0), 0)"
+$f_Bendora_PMF_release,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_PMF_release,"if($f_Bendora_PMF_trigger_last2months<1,$pv_PMF_release*1,0)"
+$f_ScenarioPopulation,Function,$NSW_Towns_Urban_Demand.Bungendore.f_ScenarioPopulation,"// baseline population = 4745. Scenario opopulation used to scale the demand //
+// SDL Scenario population = ?? //
+
+4745"
+$f_CHWNDemand,Function,$NSW_Towns_Urban_Demand.Yass.f_CHWNDemand,"// Fixed demand based on CHWN and monthly pattern
+$NSW_Towns_Urban_Demand.f_CHWN * $f_ScenarioPopulation * ($pv_MonthlyUsage / 100) / $Now.DaysInMonth"
+$f_Bendora_RMF_release,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_RMF_release,"if($f_Bendora_RMF_trigger_last2months<3,$pv_RMF_release*1,0)"
+$f_Bendora_RMF_threshold,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_RMF_threshold,"if($mv_DS_Bendora>149,1,0)"
+$f_Population,Function,$NSW_Towns_Urban_Demand.Bungendore.f_Population,"// 4745 2021 ABC Census //
+
+4745"
+$f_Bendora_RMF_trigger_3day,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_RMF_trigger_3day,sum($mv_Bendora_RMF_3day_flow_trigger)
+$f_Bendora_RMF_trigger_last2months,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_RMF_trigger_last2months,max($mv_Bendora_RMF_last_2_months)
+$f_TotalDemand,Function,$NSW_Towns_Urban_Demand.Gundaroo.f_TotalDemand,"$NSW_Towns_Urban_Demand.Yass.f_TotalDemand * ($f_Population/$NSW_Towns_Urban_Demand.Yass.f_ScenarioPopulation) *
+($f_Population/$f_ScenarioPopulation)"
+$f_Bendora_PMF_threshold,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_PMF_threshold,"if($mv_DS_Bendora>549,1,0)"
+$f_Bendora_total_env_release,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_total_env_release,"if($f_Bendora_PMF_release<550,
+	if($f_Bendora_RMF_release<150,$f_Bendora_baseflow_release,$f_Bendora_RMF_release),
+		$f_Bendora_PMF_release)"
+$f_ScenarioPopulation,Function,$NSW_Towns_Urban_Demand.Gundaroo.f_ScenarioPopulation,"// baseline population = 1233. Scenario opopulation used to scale the demand //
+// SDL Scenario population = ?? //
+
+1233"
+$f_Bendora_baseflow_threshold,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_baseflow_threshold,$pv_Bendora_ACT_Env_Release*1
+$f_Bendora_baseflow_release,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_baseflow_release,"if($f_Bendora_baseflow_threshold<$f_Bendora_reference_inflow, 
+	$f_Bendora_baseflow_threshold,$f_Bendora_reference_inflow)
+"
+$f_Population,Function,$NSW_Towns_Urban_Demand.Murrumbateman.f_Population,"// 3607 2021 ABC Census //
+
+3607"
+$f_Bendora_PMF_trigger_last2months,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_PMF_trigger_last2months,max($mv_Bendora_PMF_last_2_months)
+$f_TotalDemand,Function,$NSW_Towns_Urban_Demand.Murrumbateman.f_TotalDemand,"$NSW_Towns_Urban_Demand.Yass.f_TotalDemand * ($f_Population/$NSW_Towns_Urban_Demand.Yass.f_ScenarioPopulation) *
+($f_Population/$f_ScenarioPopulation)"
+$f_ScenarioPopulation,Function,$NSW_Towns_Urban_Demand.Murrumbateman.f_ScenarioPopulation,"// baseline population = 3607. Scenario opopulation used to scale the demand //
+// SDL Scenario population = ?? //
+
+3607"
+$f_Population,Function,$NSW_Towns_Urban_Demand.Gundaroo.f_Population,"// 1233 2021 ABC Census //
+
+1233"
+$f_Tantangara_past_12_months_rain_total,Function,$Other_storages.Tantangara.f_Tantangara_past_12_months_rain_total," if($Now.DayOfYear = 1,sum($mv_above_Tantangara_rain_12_months),$f_Tantangara_past_12_months_rain_total) "
+$f_TotalDemand,Function,$NSW_Towns_Urban_Demand.Bungendore.f_TotalDemand,"$NSW_Towns_Urban_Demand.Yass.f_TotalDemand * ($f_Population/$NSW_Towns_Urban_Demand.Yass.f_ScenarioPopulation) *
+($f_Population/$f_ScenarioPopulation)"
+$f_Goodradigbee_to_Tantangara_diversion,Function,$Other_storages.Tantangara.f_Goodradigbee_to_Tantangara_diversion,"max($mv_Goodragigbee_R_at_weir - $f_Goodradigbee_eflow_ts,0)"
+$f_Balance,Function,$Resource_Assessment.ACT_ICON.Googong_water_use.f_Balance,"max(min(3 * $Resource_Assessment.ACT_ICON.Googong_water_use.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_ICON.Googong_water_use.mv_2yrDebits), 2 * $Resource_Assessment.ACT_ICON.Googong_water_use.mv_Entitlement), 0)"
+$f_Gross_ICON_take,Function,$ACT_Net_Take.f_Gross_ICON_take,"$mv_Bendora_extraction +
+$mv_Cotter_extraction +
+$mv_Googong_extraction +
+$mv_Murrumbidgee_to_Googoong + 
+$mv_Murrumbidgee_to_Stromlo"
+$f_Net_Take,Function,$ACT_Net_Take.f_Net_Take,$f_Gross_ICON_take+$f_Gross_Non_ICON_take-$f_Returns
+$f_Returns,Function,$ACT_Net_Take.f_Returns,$mv_QSTP_inflow + $mv_LMWQCC_inflow
+$f_Gross_Non_ICON_take,Function,$ACT_Net_Take.f_Gross_Non_ICON_take,"$mv_ACT_Ginninderra_WMA+
+$mv_ACT_Gudgenby_WMA+
+$mv_ACT_Googong_WMA+
+$mv_ACT_Paddys_WMA+
+$mv_ACT_Lower_Murrumbidgee_WMA+
+$mv_ACT_Lwer_Molonglo_WMA+
+$mv_ACT_Central_Molonglo_WMA+
+$mv_ACT_Cotter_WMA+
+$mv_ACT_Upper_Murrumbidgee_WMA+
+$mv_ACT_Tuggeranong_WMA+
+$mv_ACT_Naas_WMA"
+$f_ICON_2yrDebits,Function,$Resource_Assessment.ACT_ICON.f_ICON_2yrDebits,"sum($Resource_Assessment.ACT_ICON.Googong_water_use.mv_2yrDebits)+
+sum($Resource_Assessment.ACT_ICON.Bendora_water_use.mv_2yrDebits)+
+sum($Resource_Assessment.ACT_ICON.Cotter_water_use.mv_2yrDebits)+
+sum($Resource_Assessment.ACT_ICON.Murrumbidgee_water_use.mv_2yrDebits)"
+$f_ICON_Balance,Function,$Resource_Assessment.ACT_ICON.f_ICON_Balance,"max(min(3 * $f_ICON_Entitlement-$f_ICON_2yrDebits,2*$f_ICON_Entitlement),0)"
+$f_ICON_Entitlement,Function,$Resource_Assessment.ACT_ICON.f_ICON_Entitlement,"($Resource_Assessment.ACT_ICON.Googong_water_use.mv_Entitlement+
+$Resource_Assessment.ACT_ICON.Bendora_water_use.mv_Entitlement+
+$Resource_Assessment.ACT_ICON.Cotter_water_use.mv_Entitlement+
+$Resource_Assessment.ACT_ICON.Murrumbidgee_water_use.mv_Entitlement)/4"
+$f_Goodradigbee_eflow_ts,Function,$Other_storages.Tantangara.f_Goodradigbee_eflow_ts,"if($f_Tantangara_annual_HEW<5000,0, 
+	if($f_Tantangara_annual_HEW<7500, 22, 36))"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Central_Molonglo.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Central_Molonglo.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Central_Molonglo.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Central_Molonglo.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Cotter.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Cotter.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Cotter.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Cotter.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Lower_Murrumbidgee.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Lower_Murrumbidgee.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Lower_Murrumbidgee.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Lower_Murrumbidgee.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Upper_Murrumbidgee.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Upper_Murrumbidgee.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Upper_Murrumbidgee.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Upper_Murrumbidgee.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Naas.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Naas.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Naas.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Naas.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Paddys.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Paddys.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Paddys.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Paddys.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Tuggeranong.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Tuggeranong.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Tuggeranong.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Tuggeranong.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Ginninderra.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Ginninderra.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Ginninderra.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Ginninderra.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Googong.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Googong.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Googong.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Googong.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Gudgenby.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Gudgenby.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Gudgenby.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Gudgenby.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.ACT_UNREG.Lower_Molonglo.f_Balance,"max(min(3 * $Resource_Assessment.ACT_UNREG.Lower_Molonglo.mv_Entitlement - 
+	sum($Resource_Assessment.ACT_UNREG.Lower_Molonglo.mv_2yrDebits), 
+	2 * $Resource_Assessment.ACT_UNREG.Lower_Molonglo.mv_Entitlement), 0)"
+$f_Jerrabomberra_env_flow,Function,$Env_flows.Jerrabomberra.f_Jerrabomberra_env_flow,$pv_Jerrabomberra_monthly_pattern
+$f_CHWN,Function,$NSW_Towns_Urban_Demand.f_CHWN,"// Critical human water need in ML/person/year
+0.072"
+$f_AnnualUsage,Function,$NSW_Towns_Urban_Demand.Cooma.f_AnnualUsage,1195* ($f_ScenarioPopulation/$f_Population)
+$f_CHWNDemand,Function,$NSW_Towns_Urban_Demand.Cooma.f_CHWNDemand,"// Fixed demand based on CHWN and monthly pattern
+$NSW_Towns_Urban_Demand.f_CHWN * $f_scenarioPopulation * ($pv_MonthlyUsage / 100) / $Now.DaysInMonth"
+$f_aqueduct_opening_proportion,Function,$Other_storages.Tantangara.f_aqueduct_opening_proportion,"if($mv_Goodragigbee_R_at_weir > 0,
+min($f_Goodradigbee_to_Tantangara_diversion / $mv_Goodragigbee_R_at_weir, 1),0)"
+$f_VarUseDemand,Function,$NSW_Towns_Urban_Demand.Cooma.f_VarUseDemand,"// Variable usage demand in ML/d based off rolling deficit
+($f_DailyUsage - $f_CHWNDemand) * ($f_RollingDeficit / 7) / $pv_MonthlyDeficit"
+$f_TotalDemand,Function,$NSW_Towns_Urban_Demand.Cooma.f_TotalDemand,$f_VarUseDemand + $f_CHWNDemand
+$f_RollingDeficit,Function,$NSW_Towns_Urban_Demand.Cooma.f_RollingDeficit,"$f_RollingDeficit + 
+max($tv_Evap - $tv_Rainfall, 0) -
+max(lookup($mv_Evap_7days, 0) - lookup($mv_Rainfall_7days, 0), 0)"
+$f_Population,Function,$NSW_Towns_Urban_Demand.Cooma.f_Population,6681
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.41000272_Bredbo.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.41000272_Bredbo.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.41000272_Bredbo.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.41000272_Bredbo.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.41000272_Murrumbidgee_2.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.41000272_Murrumbidgee_2.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.41000272_Murrumbidgee_2.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.41000272_Murrumbidgee_2.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410008_Murrumbidgee_3.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410008_Murrumbidgee_3.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410008_Murrumbidgee_3.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410008_Murrumbidgee_3.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410008_Goodradigbee.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410008_Goodradigbee.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410008_Goodradigbee.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410008_Goodradigbee.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410033_Murrumbidgee_1.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410033_Murrumbidgee_1.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410033_Murrumbidgee_1.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410033_Murrumbidgee_1.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410050_Murrumbidgee_2.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410050_Murrumbidgee_2.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410050_Murrumbidgee_2.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410050_Murrumbidgee_2.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410050_Numeralla_E.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410050_Numeralla_E.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410050_Numeralla_E.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410050_Numeralla_E.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410050_Numeralla_W.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410050_Numeralla_W.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410050_Numeralla_W.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410050_Numeralla_W.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410176_Yass_Lower.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410176_Yass_Lower.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410176_Yass_Lower.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410176_Yass_Lower.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410176_Yass_Upper.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410176_Yass_Upper.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410176_Yass_Upper.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410176_Yass_Upper.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410777_Murrumbidgee_3.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410777_Murrumbidgee_3.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410777_Murrumbidgee_3.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410777_Murrumbidgee_3.mv_Entitlement), 0)"
+$f_Balance,Function,$Resource_Assessment.NSW_UNREG.410770_Queanbeyan.f_Balance,"max(min(3 * $Resource_Assessment.NSW_UNREG.410770_Queanbeyan.mv_Entitlement - 
+	sum($Resource_Assessment.NSW_UNREG.410770_Queanbeyan.mv_2yrDebits), 
+	2 * $Resource_Assessment.NSW_UNREG.410770_Queanbeyan.mv_Entitlement), 0)"
+$f_CTP_Goodradigbee,Function,$Cease_To_Pump.NSW.f_CTP_Goodradigbee,"if($Cease_To_Pump.NSW.mv_Goodradigbee_ReferenceGauge>45,0,1e6)"
+$f_CTP_Murrumbidgee_1,Function,$Cease_To_Pump.NSW.f_CTP_Murrumbidgee_1,"if($Cease_To_Pump.NSW.mv_Murrumbidgee_1_ReferenceGauge>33,0,1e6)"
+$f_CTP_Murrumbidgee_2,Function,$Cease_To_Pump.NSW.f_CTP_Murrumbidgee_2,"if($Cease_To_Pump.NSW.mv_Murrumbidgee_2_ReferenceGauge>27,0,1e6)"
+$f_CTP_Murrumbidgee_3,Function,$Cease_To_Pump.NSW.f_CTP_Murrumbidgee_3,"if($Cease_To_Pump.NSW.mv_Murrumbidgee_3_ReferenceGauge>87,0,1e6)"
+$f_CTP_Numeralla_E,Function,$Cease_To_Pump.NSW.f_CTP_Numeralla_E,"if($Cease_To_Pump.NSW.mv_Numeralla_E_ReferenceGauge>4.5,0,1e6)"
+$f_CTP_Numeralla_W,Function,$Cease_To_Pump.NSW.f_CTP_Numeralla_W,"if($Cease_To_Pump.NSW.mv_Numeralla_W_ReferenceGauge>0.6,0,1e6)"
+$f_CTP_Queanbeyan,Function,$Cease_To_Pump.NSW.f_CTP_Queanbeyan,"if($Cease_To_Pump.NSW.mv_Queanbeyan_ReferenceGauge>1,0,1e6)"
+$f_CTP_Yass_Lower,Function,$Cease_To_Pump.NSW.f_CTP_Yass_Lower,"if($Cease_To_Pump.NSW.mv_Yass_Lower_ReferenceGauge>1,0,1e6)"
+$f_CTP_Yass_Upper,Function,$Cease_To_Pump.NSW.f_CTP_Yass_Upper,"if($Cease_To_Pump.NSW.mv_Yass_Upper_ReferenceGauge>1,0,1e6)"
+$f_CTP_Bredbo,Function,$Cease_To_Pump.NSW.f_CTP_Bredbo,"if($Cease_To_Pump.NSW.mv_Bredbo_ReferenceGauge>1,0,1e6)"
+$f_CTP_Molonglo,Function,$Cease_To_Pump.NSW.f_CTP_Molonglo,"if($Cease_To_Pump.NSW.mv_Molonglo_ReferenceGauge>1.6,0,1e6)"
+$f_DailyUsage,Function,$NSW_Towns_Urban_Demand.Cooma.f_DailyUsage,"// $f_AnnualUsage disaggreated to daily via monthly pattern and days in month
+$f_AnnualUsage * ($pv_MonthlyUsage / 100) / $Now.DaysInMonth"
+$f_Historic_aquaduct_opening,Function,$Other_storages.Tantangara.f_Historic_aquaduct_opening,"if($Now.Year<2006,1,$f_aqueduct_opening_proportion)"
+$f_ScenarioPopulation,Function,$NSW_Towns_Urban_Demand.Cooma.f_ScenarioPopulation,"// baseline population = 6681. Scenario opopulation used to scale the demand //
+// Scenario population to reach SDL = 12500 //
+6681"
+$f_ScenarioPopulation,Function,$NSW_Towns_Urban_Demand.Yass.f_ScenarioPopulation,"// baseline population = 10492. Scenario opopulation used to scale the demand //
+// SDL Scenario population = 15968 //
+10492"
+$f_Annual_per_capita_demand,Function,$ACT_Demand.Water_Restriction_Triggers.f_Annual_per_capita_demand,$f_annual_wateruse/$ACT_AnnualTake.Return_flows.f_scenario_population/365.5*1000*1000
+$f_annual_wateruse,Function,$ACT_Demand.Water_Restriction_Triggers.f_annual_wateruse,"if($Now.Month = 7 and $Now.Day = 1, sum($mv_Urban_demand_365_days), $f_annual_wateruse)"
+$f_Daily_per_capita_demand,Function,$ACT_Demand.Water_Restriction_Triggers.f_Daily_per_capita_demand,$ACT_AnnualTake.Urban_demands.f_Urban_demand*1000000/$ACT_AnnualTake.Return_flows.f_scenario_population
+$f_restriction_classification_entry_trigger,Function,$ACT_Demand.Water_Restriction_Triggers.f_restriction_classification_entry_trigger,"if($ICON_supply.Storage_Assess.f_Storage_prop> 0.5, 0,
+	if($ICON_supply.Storage_Assess.f_Storage_prop> 0.45,1,
+		if($ICON_supply.Storage_Assess.f_Storage_prop> 0.35,2,
+			if($ICON_supply.Storage_Assess.f_Storage_prop> 0.3,3,
+				if($ICON_supply.Storage_Assess.f_Storage_prop> 0.15,4,
+					if($ICON_supply.Storage_Assess.f_Storage_prop> 0.05,5,6))))))"
+$f_restriction_classification_exit_trigger,Function,$ACT_Demand.Water_Restriction_Triggers.f_restriction_classification_exit_trigger,"if($ICON_supply.Storage_Assess.f_Storage_prop> 0.6, 0,
+	if($ICON_supply.Storage_Assess.f_Storage_prop> 0.5,1,
+		if($ICON_supply.Storage_Assess.f_Storage_prop> 0.4,2,
+			if($ICON_supply.Storage_Assess.f_Storage_prop> 0.35,3,
+				if($ICON_supply.Storage_Assess.f_Storage_prop> 0.25,4,
+					if($ICON_supply.Storage_Assess.f_Storage_prop> 0.10,5,6))))))"
+$f_restriction_classification,Function,$ACT_Demand.Water_Restriction_Triggers.f_restriction_classification,"if($f_restriction_classification_entry_trigger>$f_restriction_classification,$f_restriction_classification_entry_trigger,
+	if($f_restriction_classification_exit_trigger<$f_restriction_classification,$f_restriction_classification_exit_trigger,$f_restriction_classification))"
+$f_Monthly_demand,Function,$ACT_Demand.Water_Restriction_Triggers.f_Monthly_demand,"if($Now.Day = 1, sum($mv_Urban_demand_30_days), $f_Monthly_demand)"
+$f_Monthly_per_capita_demand,Function,$ACT_Demand.Water_Restriction_Triggers.f_Monthly_per_capita_demand,$f_Monthly_demand/$ACT_AnnualTake.Return_flows.f_scenario_population/30*1000*1000
+$f_target_per_capita_use,Function,$ACT_Demand.Water_Restriction_Triggers.f_target_per_capita_use,"if($f_restriction_classification>0,lookup($pwl_Target_residential_consumption,$f_restriction_classification),200)"
+$f_Water_restriction_scaling_factor,Function,$ACT_Demand.Water_Restriction_Triggers.f_Water_restriction_scaling_factor,"if($f_restriction_classification>0,$f_target_per_capita_use/$f_Annual_per_capita_demand,1)"
+$f_Restricted_urban_demand,Function,$ACT_Demand.Water_Restriction_Triggers.f_Restricted_urban_demand,$ACT_AnnualTake.Urban_demands.f_Urban_demand*$f_Water_restriction_scaling_factor
+$f_Googong_SF_release,Function,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_SF_release,"if($f_Googong_SF_trigger_last2months<1,$pv_Googong_small_fresh*1,0)"
+$f_Googong_SF_trigger_last2months,Function,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_SF_trigger_last2months,max($mv_Googong_SF_last_2_months)
+$f_Googong_small_fresh_threshold,Function,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_small_fresh_threshold,"if($mv_DS_Googong>99,1,0)"
+$f_Cotter_baseflow_release,Function,$ICON_storages.Cotter.ACT_Env_Guidelines.f_Cotter_baseflow_release,$pv_Cotter_ACT_Env_Release *1
+$f_Cotter_small_fresh_threshold,Function,$ICON_storages.Cotter.ACT_Env_Guidelines.f_Cotter_small_fresh_threshold,"if($mv_DS_Cotter>99,1,0)"
+$f_Cotter_SF_trigger_last2months,Function,$ICON_storages.Cotter.ACT_Env_Guidelines.f_Cotter_SF_trigger_last2months,max($mv_Cotter_SF_last_2_months)
+$f_Cotter_SF_release,Function,$ICON_storages.Cotter.ACT_Env_Guidelines.f_Cotter_SF_release,"if($f_Cotter_SF_trigger_last2months<1,$pv_Cotter_small_fresh*1,0)"
+$f_Cotter_total_env_release,Function,$ICON_storages.Cotter.ACT_Env_Guidelines.f_Cotter_total_env_release,"if($mv_DS_410738<20,$f_Cotter_baseflow_release, $f_Cotter_SF_release*0.6)
+
+// under drought condition, only 2.5.2 licence condition is stipulated, not 2.5.3//
+// $f_Cotter_SF_release*0.6 because under consultation with ICON water, //
+// 40 ML/d can be supplied from the M2C, the rest is released from Cotter //
+// therefore 100 ML/d * 0.6 = 60 ML/d released from Cotter for the SF release //"
+$f_Googong_total_env_release,Function,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_total_env_release,"if($f_Googong_SF_release<100,$f_Googong_baseflow_release, $f_Googong_SF_release)"
+$f_Googong_baseflow_release,Function,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_baseflow_release,"if($pv_Googong_ACT_Env_Release *1<$f_Googong_reference_inflow,
+	$pv_Googong_ACT_Env_Release,
+		$f_Googong_reference_inflow)"
+$f_target_per_capita_use,Function,$ACT_Demand.Water_Restrictions_2010.f_target_per_capita_use,"if($f_restriction_classification>0,lookup($pwl_Target_residential_consumption_2010,$f_restriction_classification),200)"
+$f_Water_restriction_scaling_factor,Function,$ACT_Demand.Water_Restrictions_2010.f_Water_restriction_scaling_factor,"if($f_restriction_classification>0,$f_target_per_capita_use/$ACT_Demand.Water_Restriction_Triggers.f_Annual_per_capita_demand,1)"
+$f_restriction_classification_entry_trigger,Function,$ACT_Demand.Water_Restrictions_2010.f_restriction_classification_entry_trigger,"if($ICON_supply.Storage_Assess.f_Storage_prop> 0.45, 0,
+	if($ICON_supply.Storage_Assess.f_Storage_prop> 0.35,1,
+		if($ICON_supply.Storage_Assess.f_Storage_prop> 0.20,2,
+			if($ICON_supply.Storage_Assess.f_Storage_prop> 0.1,3,4))))"
+$f_restriction_classification,Function,$ACT_Demand.Water_Restrictions_2010.f_restriction_classification,"if($f_restriction_classification_entry_trigger>$f_restriction_classification,$f_restriction_classification_entry_trigger,
+	if($f_restriction_classification_exit_trigger<$f_restriction_classification,$f_restriction_classification_exit_trigger,$f_restriction_classification))"
+$f_restriction_classification_exit_trigger,Function,$ACT_Demand.Water_Restrictions_2010.f_restriction_classification_exit_trigger,"if($ICON_supply.Storage_Assess.f_Storage_prop> 0.5, 0,
+	if($ICON_supply.Storage_Assess.f_Storage_prop> 0.45,1,
+		if($ICON_supply.Storage_Assess.f_Storage_prop> 0.35,2,
+			if($ICON_supply.Storage_Assess.f_Storage_prop> 0.15,3,4))))"
+$f_Restricted_urban_demand_2010,Function,$ACT_Demand.Water_Restrictions_2010.f_Restricted_urban_demand_2010,$ACT_AnnualTake.Urban_demands.f_Urban_demand*$f_Water_restriction_scaling_factor
+$f_Bendora_eflow_requirement,Function,$Env_flows.Cotter.f_Bendora_eflow_requirement,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_total_env_release
+$f_Bendora_eflow_delivered,Function,$Env_flows.Cotter.f_Bendora_eflow_delivered,"if($ICON_storages.Bendora.ACT_Env_Guidelines.mv_DS_Bendora>=$f_Bendora_eflow_requirement,
+	$f_Bendora_eflow_requirement, $ICON_storages.Bendora.ACT_Env_Guidelines.mv_DS_Bendora)"
+$f_Corin_eflow_delivered,Function,$Env_flows.Cotter.f_Corin_eflow_delivered,"if($ICON_storages.Corin.ACT_Env_Guidelines.mv_DS_Corin>=$f_Corin_eflow_requirement,
+	$f_Corin_eflow_requirement, $ICON_storages.Corin.ACT_Env_Guidelines.mv_DS_Corin)"
+$f_Corin_eflow_requirement,Function,$Env_flows.Cotter.f_Corin_eflow_requirement,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_total_env_release
+$f_Cotter_eflow_delivered,Function,$Env_flows.Cotter.f_Cotter_eflow_delivered,"if($ICON_storages.Cotter.ACT_Env_Guidelines.mv_DS_Cotter>=$f_Cotter_eflow_requirement,
+	$f_Cotter_eflow_requirement, $ICON_storages.Cotter.ACT_Env_Guidelines.mv_DS_Cotter)"
+$f_Cotter_eflow_requirement,Function,$Env_flows.Cotter.f_Cotter_eflow_requirement,$ICON_storages.Cotter.ACT_Env_Guidelines.f_Cotter_total_env_release
+$f_Googong_reference_inflow,Function,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_reference_inflow,"$mv_410781_reference_gauge*1.28
+
+//as per licence No WU67 pg 4 //"
+$f_Googong_eflow_requirement,Function,$Env_flows.Queanbeyan.f_Googong_eflow_requirement,$ICON_storages.Googong.ACT_Env_Guidelines.f_Googong_total_env_release
+$f_Googong_eflow_delivered,Function,$Env_flows.Queanbeyan.f_Googong_eflow_delivered,"if($ICON_storages.Googong.ACT_Env_Guidelines.mv_DS_Googong>=$f_Googong_eflow_requirement,
+	$f_Googong_eflow_requirement, $ICON_storages.Googong.ACT_Env_Guidelines.mv_DS_Googong)"
+$f_Corin_reference_inflow,Function,$ICON_storages.Corin.ACT_Env_Guidelines.f_Corin_reference_inflow,"$mv_410730_reference_gauge*1.43
+
+// page 4 Licence No WU67 //"
+$f_Bendora_reference_inflow,Function,$ICON_storages.Bendora.ACT_Env_Guidelines.f_Bendora_reference_inflow,"$ICON_storages.Corin.ACT_Env_Guidelines.mv_410730_reference_gauge*2.20
+
+// page 4 Licence No WU67 //"
+$f_Corin_total_demand,Function,$ICON_supply.Supply_Priority_2024.f_Corin_total_demand,$f_Corin_balance_demand+$f_Corin_extra_demand+$f_Corin_97_demand
+$f_Cotter_demand,Function,$ICON_supply.Supply_Priority_2024.f_Cotter_demand,"/* If the total storage is < 50% take from Cotter after Murrumbidgee has been considered else not
+    Take subject to Cotter active volume, remaining Stromolo Capacity and the remaining ACT demand */
+
+if($ICON_supply.Storage_Assess.f_storage_prop<0.50,
+	min($f_Murrumbidgee_shortfall,min($f_Cotter_cap,$ICON_storages.Cotter.f_Cotter_asv)),0) +
+	
+	$f_Cotter_regular_demand"
+$f_Cotter_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_Cotter_shortfall,"/* Shortfall in ACT demand after Bendora above 9169, Murrumbidgee and Cotter demands */
+max(0,$f_Murrumbidgee_shortfall-$f_Cotter_demand)"
+$f_Extra_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_Extra_shortfall,"/* Shortfall in ACT demand after Bendora above 9169, Murrumbidgee, Cotter and Googong and Corin total demands */
+max(0.0,$f_Balance_shortfall-$f_Total_extra)"
+$f_Final_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_Final_shortfall,"max(0,$f_97_shortfall-$f_Bendora_97_demand)"
+$f_Googong_balance,Function,$ICON_supply.Supply_Priority_2024.f_Googong_balance,"min($f_Googong_cap,min($ICON_storages.Googong.f_Googong_asv,
+	max(0,$ICON_storages.Googong.mv_Googong_csv-$ICON_storages.Googong.mv_Googong_fsv*$f_Corin_Googong_CSV/$f_Corin_Googong_FSV)))"
+$f_Maximum_M2G_pump,Function,$Env_flows.Murrumbidgee.f_Maximum_M2G_pump,"min(max($mv_US_M2G_flow-$ts_M2G_protected_flow,0),100)"
+$f_Googong_balance_demand,Function,$ICON_supply.Supply_Priority_2024.f_Googong_balance_demand,"/* If total storage <= 97% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+    First take the amount to balance the storage proportions
+    Take subject to Googong active volume, Googong Capacity and the proportion that Googong contrinbutes to the remaining ACT demand */
+    
+// need to review this function 
+ 
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.97, min($f_Googong_cap,
+	min($ICON_storages.Googong.f_Googong_asv,
+             if($f_Total_balance>0,$f_Cotter_shortfall*$f_Googong_balance/$f_Total_balance,0))),0) "
+$f_Googong_cap,Function,$ICON_supply.Supply_Priority_2024.f_Googong_cap,274.8 /* Converted to ML/day by dividing 7695 by 28 days in February */
+$f_Googong_extra_cap,Function,$ICON_supply.Supply_Priority_2024.f_Googong_extra_cap,"max(0,$f_Googong_cap-$f_Googong_balance_demand)"
+$f_Cotter_cap,Function,$ICON_supply.Supply_Priority_2024.f_Cotter_cap,"max(0,$f_Stromlo_cap-$f_Murrumbidgee_cotter_demand)"
+$f_Corin_Googong_CSV,Function,$ICON_supply.Supply_Priority_2024.f_Corin_Googong_CSV,$ICON_storages.Corin.mv_Corin_csv+$ICON_storages.Googong.mv_Googong_csv
+$f_Corin_Googong_FSV,Function,$ICON_supply.Supply_Priority_2024.f_Corin_Googong_FSV,$ICON_storages.Corin.mv_Corin_fsv+$ICON_storages.Googong.mv_Googong_fsv
+$f_Corin_balance,Function,$ICON_supply.Supply_Priority_2024.f_Corin_balance,"min(max(0,$f_Bendora_cap-$f_Bendora_above_9169),min($ICON_storages.Corin.f_Corin_asv,
+	max(0,$ICON_storages.Corin.mv_Corin_csv-$ICON_storages.Corin.mv_Corin_fsv*$f_Corin_Googong_CSV/$f_Corin_Googong_FSV)))"
+$f_Corin_balance_demand,Function,$ICON_supply.Supply_Priority_2024.f_Corin_balance_demand,"/* If total storage <= 97% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+    First take the amount to balance the storage proportions
+    Take subject to Corin active volume, Bendora remaining capacity and the proportion that Corin contrinbutes to the remaining ACT demand */
+    
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.97, 
+	min($f_Bendora_balance_cap,
+              min($ICON_storages.Corin.f_Corin_asv,
+                          if($f_Total_balance>0,$f_Cotter_shortfall*$f_Corin_balance/$f_Total_balance,0))),0) "
+$f_Corin_extra_demand,Function,$ICON_supply.Supply_Priority_2024.f_Corin_extra_demand,"/* If total storage <= 97% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+   If there was not enough after balancing storages then take water to ensure storages are in balance
+   Take subject to Bendora remaining capacity, Corin remaining active volume and the proportion that Corin contrinbutes to the remaining ACT demand */
+   
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.97, 
+	min($f_Bendora_extra_cap,
+     		min(max(0,$ICON_storages.Corin.f_Corin_asv-$f_Corin_balance_demand),
+     			$f_Balance_shortfall*$ICON_storages.Corin.mv_Corin_fsv/$f_Corin_Googong_FSV)),0)"
+$f_Corin_97_demand,Function,$ICON_supply.Supply_Priority_2024.f_Corin_97_demand,"/* When above 97% the demand is directed to Bendora and Corin with any shortfall directed to Googong 
+    Water is taken from Corin first and then Bendora */
+    
+min($f_Extra_shortfall,
+	min(max(0,$ICON_storages.Corin.f_Corin_asv-$f_Corin_balance_demand-$f_Corin_extra_demand),$f_Bendora_remaining_cap))"
+$f_Bendora_97_capacity,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_97_capacity,"max(0,$f_Bendora_remaining_cap-$f_Corin_97_demand)"
+$f_Bendora_above_9169,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_above_9169,"/* Volume in Bendora above 9169 has the highest prioirty of use but is limited by Bendora outlet capacity and the ACT demand */
+
+min($ACT_Demand.f_Demand_tot,
+	min($f_Bendora_cap,
+		max(0,$ICON_storages.Bendora.mv_Bendora_csv-$ICON_storages.Bendora.f_Bendora_env_release-9169)))"
+$f_Bendora_balance_cap,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_balance_cap,"max(0,$f_Bendora_cap-$f_Bendora_above_9169-$f_Murrumbidgee_cotter_demand-$f_Cotter_demand)"
+$f_Bendora_cap,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_cap,250.5 /* Converted to ML/day by dividing 7015 by 28 days in February */
+$f_Googong_extra_demand,Function,$ICON_supply.Supply_Priority_2024.f_Googong_extra_demand,"/* If total storage <= 97% take from Cotter and Googong after Cotter and Murrumbidgee have been considered else not
+    If there was not enough after balancing storages then take water to ensure storages are in balance
+    Take subject to remaining Googong remaining capacity, Googong active volume and the proportion that Googong contrinbutes to the remaining ACT demand */
+
+// needs reprioritisation
+
+if( $ICON_supply.Storage_Assess.f_storage_prop<=0.97, min($f_Googong_extra_cap,
+        min(max(0,$ICON_storages.Googong.f_Googong_asv-$f_Googong_balance_demand),
+        	$f_Balance_shortfall*$ICON_storages.Googong.mv_Googong_fsv/$f_Corin_Googong_FSV)),0)"
+$f_Googong_remaining_cap,Function,$ICON_supply.Supply_Priority_2024.f_Googong_remaining_cap,"max(0,$f_Googong_extra_cap-$f_Googong_extra_demand)"
+$f_Googong_total_demand,Function,$ICON_supply.Supply_Priority_2024.f_Googong_total_demand,$f_Googong_balance_demand+$f_Googong_extra_demand+$f_Googong_final_demand
+$f_Murrumbidgee_cotter_demand,Function,$ICON_supply.Supply_Priority_2024.f_Murrumbidgee_cotter_demand,"/* If the total storage is below 50% then try and take it from the Murrumbidgee River near Cotter else don;t take it from the Murrumbidgee
+     The Murrumbidgee take is limited to the remaing ACT demand, Stromolo inlet capacity and the flow in the Murrumbidgee River */
+
+if($ICON_supply.Storage_Assess.f_storage_prop<0.5,
+	min($f_Bendora_shortfall,
+		min($f_Stromlo_cap,$ICON_supply.Murrumbidgee.mv_Murrumbidgee_below_Cotter)),0)"
+$f_Murrumbidgee_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_Murrumbidgee_shortfall,"/* Shortfall in act demand after Bendora above 9169 and MUrrumbidgee access is taken into account */
+max(0,$f_Bendora_shortfall-$f_Murrumbidgee_cotter_demand)"
+$f_Stromlo_cap,Function,$ICON_supply.Supply_Priority_2024.f_Stromlo_cap,"//98 /* Converted to ML/day by dividing 2745 by 28 days in February */
+
+98 
+"
+$f_Total_balance,Function,$ICON_supply.Supply_Priority_2024.f_Total_balance,$f_Corin_balance+$f_Googong_balance
+$f_Total_balance_demand,Function,$ICON_supply.Supply_Priority_2024.f_Total_balance_demand,"/* Sum of Corin and Googong balance demands */
+$f_Corin_balance_demand+$f_Googong_balance_demand"
+$f_Total_extra,Function,$ICON_supply.Supply_Priority_2024.f_Total_extra,"/* Sum of Googong and Coring Extra demands */
+$f_Googong_extra_demand+$f_Corin_extra_demand"
+$f_Googong_final_demand,Function,$ICON_supply.Supply_Priority_2024.f_Googong_final_demand,"min($f_Final_shortfall,min
+	(max(0,$ICON_storages.Googong.f_Googong_asv-$f_Googong_balance_demand-$f_Googong_extra_demand),
+		$f_Googong_remaining_cap))"
+$f_Bendora_demand,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_demand,$f_Bendora_above_9169+$f_Bendora_97_demand
+$f_Bendora_extra_cap,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_extra_cap,"max(0,$f_Bendora_balance_cap-$f_Corin_balance_demand)"
+$f_Bendora_remaining_cap,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_remaining_cap,"max(0,$f_Bendora_extra_cap-$f_Corin_extra_demand)"
+$f_Bendora_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_shortfall,"/* The part of the ACT demand that is not met by water in Bendoara above 9169 */
+
+max(0,$ACT_Demand.f_Demand_tot-$f_Bendora_above_9169)"
+$f_Bendora_total_demand,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_total_demand,$f_Bendora_demand+$f_Corin_total_demand
+$f_Bendora_97_demand,Function,$ICON_supply.Supply_Priority_2024.f_Bendora_97_demand,"/* When above 97% the demand is directed to Bendora and Corin with any shortfall directed to Googong 
+    Water is taken from Corin first and when this reaches empty the remainder is taken from Bendora */
+    
+min($f_97_shortfall,min(max(0,$ICON_storages.Bendora.f_Bendora_asv-$ICON_storages.Bendora.f_Bendora_env_release-$f_Bendora_above_9169),$f_Bendora_97_capacity))"
+$f_97_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_97_shortfall,"/* Remaining shortfall after Corin has met the demand */
+
+max(0,$f_Extra_shortfall-$f_Corin_97_demand)"
+$f_Balance_shortfall,Function,$ICON_supply.Supply_Priority_2024.f_Balance_shortfall,"/* Shortfall in ACT demand after Bendora above 9169, Murrumbidgee, Cotter and Googong and Corin balancing demands */
+max(0,$f_Cotter_shortfall-$f_Total_balance_demand)"
+$f_1Total_Distributed_Demand,Function,$ICON_supply.Supply_Priority_2024.f_1Total_Distributed_Demand,"$f_Bendora_total_demand + 
+$f_Cotter_demand + 
+$f_Googong_total_demand + 
+$f_Murrumbidgee_cotter_demand"
+$f_Cotter_prop,Function,$ICON_supply.Storage_Assess.f_Cotter_prop,$ICON_storages.Cotter.mv_Cotter_csv/$ICON_storages.Cotter.mv_Cotter_fsv
+$f_Cotter_Stromlo,Function,$ICON_supply.Supply_Priority_2024.f_Cotter_Stromlo,$f_Murrumbidgee_cotter_demand + $f_Cotter_demand
+$f_Corin_prop,Function,$ICON_supply.Storage_Assess.f_Corin_prop,$ICON_storages.Corin.mv_Corin_csv/$ICON_storages.Corin.mv_Corin_fsv
+$f_Googong_prop,Function,$ICON_supply.Storage_Assess.f_Googong_prop,$ICON_storages.Googong.mv_Googong_csv/$ICON_storages.Googong.mv_Googong_fsv
+$f_Cotter_overall_prop_flag,Function,$ICON_supply.Storage_Assess.f_Cotter_overall_prop_flag,"if($f_Cotter_prop>$f_Storage_prop,1,0)"
+$f_Cotter_regular_demand,Function,$ICON_supply.Supply_Priority_2024.f_Cotter_regular_demand,"if($ICON_supply.Storage_Assess.f_Storage_prop <= 0.97 AND $ICON_supply.Storage_Assess.f_Cotter_overall_prop_flag = 1, 
+	min($f_Cotter_cap, $ACT_Demand.f_Demand_tot - $f_Bendora_above_9169 - $f_Murrumbidgee_cotter_demand) ,0)"
+$f_Googong_Murrumbidgee_demand_updated,Function,$ICON_supply.Murrumbidgee.f_Googong_Murrumbidgee_demand_updated,"// Transfers from Murrumbidgee River to Googong Reservoir commence when Googong storage is below 80%. //
+// Transfer continues until Googong storage reaches 80% full. //
+// Transfer is subject to flow in Murrumbidgee River at Angle Crossing. Capacity is 100 ML/day (3000 ML/month). //
+// Transfer is scaled by Success probability - a factor to limit the take based on typical WQ for the given flow rate in the river while pumping//
+
+min($mv_Murrumbidgee_us_angle,
+	if($ICON_Supply.Storage_Assess.f_Googong_prop<0.80,
+		min($f_M_G_extraction_limit*$ICON_supply.Murrumbidgee.ICON_M2G_pump_rules.f_Success_probability,
+		100*$ICON_supply.Murrumbidgee.ICON_M2G_pump_rules.f_Success_probability),0))"
+$f_M2G_Turbidity_flow_class,Function,$ICON_supply.Murrumbidgee.ICON_M2G_pump_rules.f_M2G_Turbidity_flow_class,"if($ICON_supply.Murrumbidgee.mv_Murrumbidgee_us_angle<$pv_Emergency*1,1,
+	if($ICON_supply.Murrumbidgee.mv_Murrumbidgee_us_angle<$pv_Low*1,2,
+		if($ICON_supply.Murrumbidgee.mv_Murrumbidgee_us_angle<$pv_Medium*1,3,
+			if($ICON_supply.Murrumbidgee.mv_Murrumbidgee_us_angle<$pv_High*1,4,4))))"
+$f_Fail_probability,Function,$ICON_supply.Murrumbidgee.ICON_M2G_pump_rules.f_Fail_probability,"lookup($bv_Turbidity_trigger, $f_M2G_Turbidity_flow_class, $f_Season)"
+$f_Season,Function,$ICON_supply.Murrumbidgee.ICON_M2G_pump_rules.f_Season,$pv_season*1
+$f_Success_probability,Function,$ICON_supply.Murrumbidgee.ICON_M2G_pump_rules.f_Success_probability,1-$f_Fail_probability
+$f_Water_restriction_scaling_factor_baseflows,Function,$ACT_Demand.Water_Restriction_Triggers.f_Water_restriction_scaling_factor_baseflows,"if($f_restriction_classification>0,1-0.4*($f_target_per_capita_use/$f_Annual_per_capita_demand),1)
+
+// only 0.4 of the anticipated reduction is observed in the baseflows return under recent water restrictions //
+// until the model is updated to link returns with actual use //"
