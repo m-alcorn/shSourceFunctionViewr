@@ -1,0 +1,12 @@
+name: shsourcefunctionviewr
+title:
+username: m-alcorn
+account: m-alcorn
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12733558
+bundleId: 10436692
+url: https://m-alcorn.shinyapps.io/shsourcefunctionviewr/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

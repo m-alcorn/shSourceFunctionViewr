@@ -9,23 +9,29 @@
 
 library(shiny)
 library(bslib)
+library(shinythemes)
 source("networkFunctions.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-  theme = shinytheme("slate"),
+  theme = shinytheme("spacelab"),
 
     # Application title
     titlePanel("Source Function Viewer"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
-      sidebarPanel( 
+      sidebarPanel( p("This tool uses a visual network representation of how functions 
+                                   are related to each other in the model."), 
+                    p("To get started: Select a file containing Functions exported from your Source model."),
+                    p("To filter results: Click on a single or multiple option from the
+                                  dropdown list. (To remove: click to highlight, then delete)"),
         radioButtons("fChoice",
                      "Use existing file, or new...",
-                     selected = character(0),
+                     # selected = character(0),
                      choices = c("Use a pre-processed file." = "preFile",
                                  "Create a new file from RAW Function Export plugin." = "newFile")),
+        
         br(),
         
           h3("Select file containing function list..."),
@@ -35,7 +41,7 @@ ui <- fluidPage(
         actionButton("btnGetData","Get Data..."),
         textOutput("gotData"),
         br(),
-        actionButton("btnPlot","PlotData..."),
+        # actionButton("btnPlot","PlotData..."),
         textOutput("gotPlot"),
         br(),
         h3("Use the drop down list below to filter Functions"),
@@ -45,38 +51,38 @@ ui <- fluidPage(
             list(), 
             multiple = TRUE 
           ),
-        textOutput("gotFilters"),
-          br(),
+        textOutput("gotFilters")
+          # br(),
           # verbatimTextOutput("fListPath"),
-          br(),
-          radioButtons("plotType", label = h3("Choose a plot type.."),
-                       choices = list("Simple Network" = 1, "Force Network" = 2), 
-                       selected = 1)
+          # br()
+          # radioButtons("plotType", label = h3("Choose a plot type.."),
+          #              choices = list("Simple Network" = 1, "Force Network" = 2), 
+          #              selected = 1)
        
         ),
+      
 
         # Show a plot of the generated distribution
-        mainPanel(
-         h1("Source Functions: Visualisation Tool"),
-          
-         p("This tool uses a visual network representation of how functions 
-         are related to each other in the model."), 
-           p("To get started: Select a file containing Functions exported from your Source model."),
-           p("To filter results: Click on a single or multiple option from the
-            dropdown list. (To remove: click to highlight, then delete)"),
-         br(),
-         verbatimTextOutput("statusMessage"),
-         
-         uiOutput("plotFrame1")
-         # uiOutput("plotFrame1",
-         #          div(style = "width: 100%; height: 500px; visibility: inherit")
-         # )
-        
-          
-       
+        mainPanel( 
+          tabsetPanel(type="tab", 
+                      tabPanel("Main Plot",
+                              
+                               
+                               br(),
+                               verbatimTextOutput("statusMessage"),
+                               
+                               forceNetworkOutput("plotFrame1", height = "800px")
+                               ),
+                      tabPanel("Data", 
+                               DT::dataTableOutput("functionsData")
+                               )
+                      
+          )
+        )
+ 
+      )
     )
-    )
-)
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -96,19 +102,21 @@ server <- function(input, output) {
     fData$inFile <- input$datafile$datapath
     print(input$fChoice)
     print(fData$inFile)
-    #browser()
+    #
     f <- fData$inFile
-    #browser()
+    #
     fData$actualInputType <- checkFileType(f)
-    #browser()
-    #browser()
+    #
+    #
     
     if(fData$actualInputType==fData$selectedInputType){
-      #browser()
+      #
       if(!is.null(fData$data)){
+        
         fData$validInputs <- "TRUE"
         fData$currentMessage <- "All inputs are currently valid"
-        #browser()
+        
+        #
       } else { 
         fData$validInputs <- "FALSE"
         fData$currentMessage <- "No valid data currently loaded"
@@ -123,12 +131,7 @@ server <- function(input, output) {
     
     
   }
-  
-  rVal <- reactiveValues(
-      current = "preFile",
-      last = "NULL")
-  
-  # fReset <- reactive()
+
   output$statusMessage <- renderPrint({fData$currentMessage})
  
  
@@ -139,36 +142,22 @@ server <- function(input, output) {
                 accept = c(
                   "text/csv",
                   "text/comma-separated-values,text/plain",
-                  ".csv")
+                  ".csv"),
+                placeholder = "./data/FunctionsListFile.csv"
       )
     })
 
- 
-  
-  resetfileInput <- function(){
-    
-    req(input$fChoice)
-    rVal$last = rVal$current
-    rVal$current <- input$fChoice
-    if(rVal$current==rVal$last){
-      print("rVal has not changed....")
-      return(FALSE)
-    } else{
-      print("rVal has changed....")
-      return(TRUE)
-    }
-  }
   
   observe({
-    # browser()
+  
     fData$inFile <- input$datafile$datapath
     fData$selectedChoice <- input$fChoice
     # print(fData)
     
   })
+ 
   
-  
-  data <- observeEvent(input$btnGetData,{
+data <- observeEvent(input$btnGetData,{
     fData$inFile <- input$datafile$datapath
     file1 <- input$datafile
     
@@ -185,91 +174,100 @@ server <- function(input, output) {
 
     
     if(input$fChoice=="preFile"){
+      output$gotData <- renderText({"Loading Data........"})
       req(input$datafile)
       d <- getData(input$datafile$datapath)
       
+      
     } else{
       if(input$fChoice=="newFile"){ 
+        output$gotData <- renderText({"Loading Data........"})
         req(input$datafile)
         d <-parseFunctionExport(input$datafile$datapath)
+        
       }
     
     }
     output$gotData <- renderText({"Data loaded successfully."})
     
     fData$data <- d
+    # 
+    
     checkInputs(fData)
+    return(d)
   })
   
+ 
   
+  
+  observe({
+    if(is.null(fData$data)){
+      return()
+    }
+    s <- input$select
+    #
+    if(!is.null(s)){
+      pd <- filterData(s,fData$data)
+      #
+    } else {
+      pd <- fData$data
+      #
+    }
+    output$functionsData <- DT::renderDataTable({pd})
+    
+  })
+ 
+  ch <- reactive({
+    getFolderPaths(fData$data)
+  })
 
   observe({
-    if(is.null(fData$data)) ({return()})
-    
+    if(is.null(fData$data)){
+      return()
+    }
     req(input$datafile)
-    
     req(input$fChoice)
-     reset <- resetfileInput()
-     print(paste0('Reset = ', reset))
-     if(reset){
-       return()
-       } else {
-         # output$gotData <- renderText({"Loading data. Please wait...."})
-    ch <- getFolderPaths(fData$data)
-  #browser()
-    updateSelectInput(inputId = "select",
-                      choices = ch) }
-    # browser()
-     
-     # output$gotFilters <- renderText({"Filter options ready.."})
-     checkInputs(fData)
-  }
-  )
+    
+    # ch <- getFolderPaths(fData$data)
+  
+  updateSelectInput(inputId = "select",
+                      choices = ch())
+    # 
+  checkInputs(fData)
+
+  })
 
   
-  
-   observeEvent(input$btnPlot,{  
-     output$plotFrame1 <- renderUI({
-       
-              
-              if(is.null(fData$data)){
-                
-                 output$gotPlot <- renderText({"No Data loaded for plot..."})
-                return()
-                 }
-              s <- input$select
-              #browser()
-              if(!is.null(s)){
-                pd <- filterData(s,fData$data)
-                #browser()
-              } else {
-                pd <- fData$data
-                #browser()
-              }
-              req(pd)
-              pt <- input$plotType
-              if(pt=="1"){
-                #browser()
-                renderSimpleNetwork({
-                
-                  plotSimpleNetwork(pd)
-                  
-                  
-                })
-                # output$gotPlot <- renderText({"Simple network plot successful"})
-              } else {
-                renderForceNetwork({
-                  plotForceNetwork(pd)
-                  
-                })
-                # output$gotPlot <- renderText({"Force network plot successful"})
-                
-              }
-              # browser()
-              # checkInputs(fData)
-  })
+observe({       
+      if(is.null(fData$data)){
+        
+        output$gotPlot <- renderText({"No Data loaded for plot..."})
+        return()
+      }
+      s <- input$select
+      #
+      if(!is.null(s)){
+        pd <- filterData(s,fData$data)
+        #
+      } else {
+        pd <- fData$data
+        #
+      }
+      req(pd)
+      
+      output$plotFrame1 <-renderForceNetwork({
+          
+          plotForceNetwork(pd)
+          
+          
+        })
+     
+      checkInputs(fData)
+    
     
   })
+  
+  
 
  } #wrap server function
 # Run the application 
